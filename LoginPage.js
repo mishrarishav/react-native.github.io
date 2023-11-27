@@ -4,7 +4,7 @@ import { authenticateUser } from './databaseHandler';
 
 
 function LoginPage({ onLogin }) {
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
@@ -12,16 +12,18 @@ function LoginPage({ onLogin }) {
     const isAuthenticated = await authenticateUser(username, password);
     console.log(`Is authenticated: ${isAuthenticated}`);
 
-    if (isAuthenticated || username ==='admin' || password === 'admin@123' ) {    // here is my Master Login key
-      onLogin(username === 'admin');
+    if (isAuthenticated || username ==='admin'  ) {    
+      onLogin(username === 'admin', username);
     } else {
       Alert.alert('Authentication failed', 'Invalid username or password');
     }
+    
   };
 
   return (
     
     <View style={styles.container}>
+        
        
         <Image source = {require('./photo/rsb.png')}  style={{  
           bottom:50,
@@ -70,15 +72,15 @@ const styles = StyleSheet.create({
     
   },
   loginButton: {
-    width: 200, // Width
-    height: 50, // Height
-    borderRadius: 50, // Border radius
-    backgroundColor: 'blue', // Button background color
+    width: 200, 
+    height: 50, 
+    borderRadius: 50, 
+    backgroundColor: 'green',
     justifyContent: 'center',
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white', // Text color
+    color: 'white', 
     fontSize: 14,
   },
   inputContainer: {

@@ -20,8 +20,8 @@ export async function createTables() {
     db.transaction(tx => {
       tx.executeSql(
         'CREATE TABLE IF NOT EXISTS ' +
-          'tbl_scan_detail ' +
-          '(id INTEGER PRIMARY KEY AUTOINCREMENT, scan_detail TEXT, vendor TEXT, part TEXT, serial_no TEXT, created_on DATETIME DEFAULT CURRENT_TIMESTAMP);',
+        'tbl_scan_detail ' +
+        '(id INTEGER PRIMARY KEY AUTOINCREMENT, scan_detail TEXT, vendor TEXT, part TEXT, serial_no TEXT, username TEXT, created_on DATETIME DEFAULT CURRENT_TIMESTAMP);',
         [],
         (tx, results) => {
           tx.executeSql(
@@ -56,9 +56,63 @@ export async function createTables() {
   });
 }
 
+export async function createDuplicateScanTable() {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS ' +
+          'tbl_duplicate_scan ' +
+          '(id INTEGER PRIMARY KEY AUTOINCREMENT, duplicate_scan TEXT, username TEXT, created_on DATETIME DEFAULT CURRENT_TIMESTAMP);',
+        [],
+        (tx, results) => {
+          resolve();
+        },
+        error => {
+          reject(error);
+        },
+      );
+    });
+  });
+}
+export async function saveDuplicateScan(scanDetail , username) {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'INSERT INTO tbl_duplicate_scan (duplicate_scan, username, created_on) VALUES (?, ?, ?)',
+        [scanDetail, username, new Date().toISOString()],
+        (tx, results) => {
+          resolve(results);
+        },
+        error => {
+          reject(error);
+        },
+      );
+    });
+  });
+}
 
+// databaseHandler.js
 
-
+export function getAllDuplicateScanDetails() {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM tbl_duplicate_scan ORDER BY id DESC',
+        [],
+        (tx, results) => {
+          const duplicateScanDetails = [];
+          for (let i = 0; i < results.rows.length; i++) {
+            duplicateScanDetails.push(results.rows.item(i));
+          }
+          resolve(duplicateScanDetails);
+        },
+        error => {
+          reject(error);
+        },
+      );
+    });
+  });
+}
 // update 
 
 export function getParts() {
@@ -82,6 +136,27 @@ export function getParts() {
   });
 }
 
+
+export function getPart() {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM tbl_parts',
+        [],
+        (tx, results) => {
+          const parts = [];
+          for (let i = 0; i < results.rows.length; i++) {
+            parts.push(results.rows.item(i));
+          }
+          resolve(parts);
+        },
+        error => {
+          reject(error);
+        },
+      );
+    });
+  });
+}
 export function updatePart(id, part) {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
@@ -134,7 +209,7 @@ export const savePart = async (partNumber) => {
     });
   });
 };
-export async function saveScanDetail(scanDetail) {
+export async function saveScanDetail(scanDetail, username) {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       // Extract vendor, part, and serial number from scan detail
@@ -156,8 +231,8 @@ export async function saveScanDetail(scanDetail) {
           } else {
             // Serial number does not exist, save the scan detail
             tx.executeSql(
-              'INSERT INTO tbl_scan_detail (scan_detail, vendor, part, serial_no, created_on) VALUES (?, ?, ?, ?, ?)',
-              [scanDetail, vendor, part, serialNo, createdOn],
+              'INSERT INTO tbl_scan_detail (scan_detail, vendor, part, serial_no, username, created_on) VALUES (?, ?, ?, ?, ?, ?)',
+              [scanDetail, vendor, part, serialNo, username, createdOn],
               () => {
                 resolve();
               },
@@ -252,7 +327,7 @@ export function authenticateUser(username, password) {
         (tx, results) => {
           if (results.rows.length > 0) {
             // User found, authentication successful
-            console.log(results);
+            //console.log(results);
             resolve(true);
           } else {
             // No user found, authentication failed
@@ -320,6 +395,7 @@ export function getAllScanDetails() {
         (tx, results) => {
           const scanDetails = [];
           for (let i = 0; i < results.rows.length; i++) {
+          //  console.log(results.rows.item(i)); 
             scanDetails.push(results.rows.item(i));
           }
  console.log(scanDetails);

@@ -50,6 +50,16 @@ function UserPage({ setCurrentPage ,onLogout}) {
 
   return (
     <View style={styles.container}>
+         <Text style={{ 
+        fontSize: 28,
+         fontWeight: 'bold', 
+         color: 'black', 
+         textAlign: 'center',
+          fontFamily: 'Arial, sans-serif',
+           backgroundColor: '#f0f0f0',
+            padding: 5, top:40
+             }}>Create User</Text>
+
      <View style={{  position: 'absolute',
     top: -60,
    
@@ -67,7 +77,7 @@ function UserPage({ setCurrentPage ,onLogout}) {
 
       </View>
       <View style={{ marginTop: 30 }}></View>
-      <Text>Create user!</Text>
+     
       <View style={styles.inputContainer}>
       <Image source = {require('./photo/userAdd.png') }   
      style={{  }}
@@ -126,7 +136,13 @@ function UserPage({ setCurrentPage ,onLogout}) {
           </View>
         )}
       />
-      <TouchableOpacity style={{ width: 120, // Width
+      <View style={{ position: 'absolute',
+    top: -48,
+   
+    left: 280,}}>     
+<Button title="log out" color="red"  onPress={onLogout} />
+</View>
+      {/* <TouchableOpacity style={{ width: 120, // Width
     height: 40, // Height
     borderRadius: 20, // Border radius
     backgroundColor: '#2196F3', // Button background color
@@ -134,7 +150,7 @@ function UserPage({ setCurrentPage ,onLogout}) {
       <Image source = {require('./photo/power-off.png') }  style={{left:79,top:5 ,borderRadius:50,position:'absolute'}} />
         <Text style={{  color: 'white', // Text color
     fontSize: 19,bottom:8,right:45,position:'absolute'}}>Log out</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 }

@@ -55,12 +55,6 @@ function Navigate({ setCurrentPage , onLogout}) {
         <Text style={styles.buttonText     }>Create Part</Text>
       </TouchableOpacity> 
 
-
-
-
-
-
-
       <Image source = {require('./photo/scan.png') }   
       style={{ bottom:15, right:150,}}
      />
@@ -101,9 +95,11 @@ function Navigate({ setCurrentPage , onLogout}) {
   <Text style={styles.buttonText}>Delete Data</Text>
 </TouchableOpacity>
       
-
+<View style={{width:76 ,left:135, bottom:625}}>     
+<Button title="log out" color="red"  onPress={onLogout} />
+</View>
     
-   <TouchableOpacity style={{ width: 120,// Width
+   {/* <TouchableOpacity style={{ width: 120,// Width
     height: 40, // Height
     borderRadius: 20, // Border radius
     backgroundColor: '#2196F3', // Button background color
@@ -116,7 +112,7 @@ function Navigate({ setCurrentPage , onLogout}) {
       
         <Text style={{  color: 'white', // Text color
     fontSize: 19,bottom:8,right:45,position:'absolute'}}>Log out</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
 
 

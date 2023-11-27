@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Button, StyleSheet, Text, FlatList, Image, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { saveScanDetail, getParts, getAllScanDetails } from './databaseHandler';
+import { saveScanDetail, getParts, getAllScanDetails,saveDuplicateScan } from './databaseHandler';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Popup } from 'popup-ui';
+import CustomModal from './CustomModal';
 
-function InputHandler(props) {
+function InputHandler(props,username) {
   const [inputData, setInputData] = useState('');
+  const [user, setUser] = useState(props.username);
   const [vendor, setVendor] = useState("Select Vendor");
   const [part, setPart] = useState();
   const [serialNo, setSerialNo] = useState('');
@@ -18,18 +20,19 @@ function InputHandler(props) {
 
   const [scanDetails, setScanDetails] = useState([]);
 
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
   useEffect(() => {
     fetchParts();
     fetchScanDetails();
   }, []);
 
   const fetchParts = async () => {
-    try {
+  
       const partData = await getParts();
       setParts(partData);
-    } catch (error) {
-      console.error(error);
-    }
+  
   };
 
 
@@ -72,64 +75,71 @@ function InputHandler(props) {
 
 
 
-
-  const handleSave = async () => 
-  {
-    if (!inputData)
-     {
+   const handleSave = async () => {
+    if (!inputData) {
       alert('Please enter scan detail before saving');
       return;
-     }
-
-    else if (inputVendor !== vendor) 
-    {
-      alert('Wrong Vendor');
+    }
+  
+    if (inputVendor !== vendor) {
+      setModalMessage('Wrong Vendor');
+      setShowModal(true);
       return;
     }
-
-    else if (inputPart !== part || !parts.includes(inputPart)) 
-    {
-      alert('Wrong Part');
+  
+    if (inputPart !== part || !parts.includes(inputPart)) {
+      setModalMessage('Wrong Part');
+      setShowModal(true);
       return;
     }
-    else {
-      try 
-      {
-        await saveScanDetail(inputData);
-        setSaveMessage('Scan detail saved successfully');
-        fetchScanDetails();
-        setInputData('');
-   
-        fetchParts();
-      } catch (error) 
-      {
-        console.error(error);
-        if (error.message === 'Duplicate serial number') 
-        {
-          alert('Duplicate serial number');
-        } else 
-        {
-          setSaveMessage('Failed to save scan detail');
-        }
-
+  
+    try {
+      
+     
+      await saveScanDetail(inputData, user);
+      setSaveMessage('Scan detail saved successfully');
+      fetchScanDetails();
+      setInputData('');
+      fetchParts();
+    } catch (error) {
+      console.error(error);
+      if (error.message === 'Duplicate serial number') {
+        await saveDuplicateScan(inputData , user);
+        
+        console.log("THis is user name " ,user);// Save duplicate scan detail
+        setModalMessage('Duplicate serial number');
+        setShowModal(true);
+      } else {
+        setSaveMessage('Failed to save scan detail');
       }
     }
   };
   return (
     <View style={styles.container}>
-      <Image source={require('./photo/rsb.png')} style={{
-        bottom: 12,
-        height: 140,
-        width: 300,
-      }}
 
+        <CustomModal
+        visible={showModal}
+        message={modalMessage}
+        onClose={() => setShowModal(false)}
       />
-      <View style={{ margin: 6 }}></View>
+       <View style={{ margin: 10 }}></View>
+             <Text style={{ 
+        fontSize: 28,
+         fontWeight: 'bold', 
+         color: 'black', 
+         textAlign: 'center',
+          fontFamily: 'Arial, sans-serif',
+           backgroundColor: '#f0f0f0',
+            padding: 5,top:23
+             }}>Create Part
+             </Text>
+      <View style={{ margin: 24 }}></View>
       <View style={{ flexDirection: 'row' }}>
         <View style={styles.pickerContainer}>
           <Text style={{
             top: -10, left: 15, borderRadius: 50,
-            backgroundColor: 'white', position: 'absolute', fontSize: 12,
+            backgroundColor: 'white', position: 'absolute', fontSize: 13,
+            fontWeight: 'bold',
             marginRight: 50
           }}>Select Vendor</Text>
 
@@ -154,7 +164,8 @@ function InputHandler(props) {
           <Text style={{
             top: -10, left: 15, fontSize: 12, borderRadius: 50,
             backgroundColor: 'white', position: 'absolute',
-            marginRight: 50
+            marginRight: 50,        fontWeight: 'bold',
+            
           }}>Select Part</Text>
           <Picker
             style={styles.picker}
@@ -174,7 +185,7 @@ function InputHandler(props) {
         <Text style={{
           top: -10, left: 35, fontSize: 12, borderRadius: 50,
           backgroundColor: 'white', position: 'absolute',
-          marginRight: 50
+          marginRight: 50,        fontWeight: 'bold',
         }}>Enter scan detail</Text>
         <TextInput
           style={styles.input}
@@ -204,38 +215,37 @@ function InputHandler(props) {
       <View style={{ marginTop: 30 }}></View>
 
       <FlatList
-        data={scanDetails}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({ item, index }) => {
-          const date = new Date(item.created_on);
-          const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-          const timeString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+  data={scanDetails}
+  keyExtractor={item => item.id.toString()}
+  renderItem={({ item, index }) => {
+    const date = new Date(item.created_on);
+    const dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+    const timeString = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
-          return (
-            <View style={styles.listItem}>
-              <Text style={styles.listItemText}>{index + 1}</Text>
-              <Text style={styles.listItemText}>{item.vendor}</Text>
-              <Text style={styles.listItemText}>{item.part}</Text>
-              <Text style={styles.listItemText}>{item.serial_no}</Text>
-
-              <Text style={styles.listItemText}>{dateString}</Text>
-              <Text style={styles.listItemText}>{timeString}</Text>
-            </View>
-          );
-        }}
-        ListHeaderComponent={() => (
-          <View style={styles.listHeader}>
-            <Text style={styles.listHeaderText}>SL No</Text>
-            <Text style={styles.listHeaderText}>Vendor</Text>
-            <Text style={styles.listHeaderText}>Part</Text>
-            <Text style={styles.listHeaderText}>Serial No</Text>
-
-            <Text style={styles.listHeaderText}>Date</Text>
-            <Text style={styles.listHeaderText}>Time</Text>
-          </View>
-        )}
-      />
-
+    return (
+      <View style={styles.listItem}>
+        <Text style={styles.listItemText}>{index + 1}</Text>
+        <Text style={styles.listItemText}>{item.vendor}</Text>
+        <Text style={styles.listItemText}>{item.part}</Text>
+        <Text style={styles.listItemText}>{item.username}</Text> 
+        <Text style={styles.listItemText}>{item.serial_no}</Text>
+        <Text style={styles.listItemText}>{dateString}</Text>
+        <Text style={styles.listItemText}>{timeString}</Text>
+      </View>
+    );
+  }}
+  ListHeaderComponent={() => (
+    <View style={styles.listHeader}>
+      <Text style={styles.listHeaderText}>SL No</Text>
+      <Text style={styles.listHeaderText}>Vendor</Text>
+      <Text style={styles.listHeaderText}>Part</Text>
+      <Text style={styles.listHeaderText}>Username</Text> 
+      <Text style={styles.listHeaderText}>Serial No</Text>
+      <Text style={styles.listHeaderText}>Date</Text>
+      <Text style={styles.listHeaderText}>Time</Text>
+    </View>
+  )}
+/>
       <View style={{ marginTop: 30 }}></View>
 
 
@@ -249,9 +259,14 @@ function InputHandler(props) {
 
 
 
+<View style={{ position: 'absolute',
+    top: -48,
+   
+    left: 280,}}>     
+<Button title="log out" color="red"  onPress={props.onLogout} />
+</View>
 
-
-      <TouchableOpacity style={{
+      {/* <TouchableOpacity style={{
         width: 120, // Width
         height: 40, // Height
         borderRadius: 20, // Border radius
@@ -263,17 +278,15 @@ function InputHandler(props) {
           color: 'white', // Text color
           fontSize: 19, bottom: 8, right: 45, position: 'absolute'
         }}>Log out</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 5,
-
     justifyContent: 'center',
-    alignItems: 'center',
+    padding: 6,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -286,19 +299,19 @@ const styles = StyleSheet.create({
     height: 60
   },
   input: {
-    marginLeft: 10,
+    marginLeft: 2,
     flex: 1,
   },
   pickerContainer: {
     borderWidth: 1,
     borderRadius: 5,
     marginBottom: 10,
-    width: '43%',
+    width: '47%',
 
 
   },
   picker: {
-    width: 180,
+    width: 179,
 
   },
   saveMessage: {

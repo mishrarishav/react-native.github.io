@@ -4,11 +4,12 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import LoginPage from './LoginPage';
 import InputHandler from './InputHandler';
 import UserPage from './UserPage';
-import { initializeDatabase, createTables } from './databaseHandler';
+import { initializeDatabase, createTables ,createDuplicateScanTable} from './databaseHandler';
 import Navigate from './Navigate';
 import PartCreate from './PartCreate';
 import Report from './Report';
 import DataDelete from './DataDelete';
+
 
 
 function App() {
@@ -21,12 +22,13 @@ function App() {
     const setupDatabase = async () => {
       await initializeDatabase();
       await createTables();
+      await createDuplicateScanTable();
     };
   
     setupDatabase();
   }, []);
 
-  const handleLogin = (isAdmin) => {
+  const handleLogin = (isAdmin, username) => {
     setIsLoggedIn(true);
     setIsAdmin(isAdmin); 
     setUsername(username); 
@@ -54,7 +56,7 @@ function App() {
         ) : currentPage === 'InputHandler' ? (
           <InputHandler navigateToUserPage={navigateToUserPage} username={username} onLogout={handleLogout} />
         ) : currentPage === 'Report' ? (
-          <Report setCurrentPage={setCurrentPage} onLogout={handleLogout} />
+          <Report setCurrentPage={setCurrentPage} onLogout={handleLogout}  username={username}/>
         ) : currentPage === 'UserPage' ? (
           <UserPage setCurrentPage={setCurrentPage} onLogout={handleLogout} />
         ) : currentPage === 'DataDelete' ? ( 

@@ -50,22 +50,41 @@ function DataDelete({ setCurrentPage, onLogout }) {
 
   return (
     <View style={styles.container}>
+      <Text style={{ 
+        fontSize: 28,
+         fontWeight: 'bold', 
+         color: 'black', 
+         textAlign: 'center',
+          fontFamily: 'Arial, sans-serif',
+           backgroundColor: '#f0f0f0',
+            padding: 10
+             }}>Delete Page</Text>
+        <Image source={require('./photo/rsb.png')} style={{
+        bottom: 12,
+        height: 140,
+        width: 300,
+      }}></Image>
+
+<View style={{width:76 ,left:260, bottom:385}}>     
+<Button title="log out" color="red"  onPress={onLogout} />
+</View>
       <View style={{ position: 'absolute', top: -60, right: 290 }}>
         <TouchableOpacity onPress={() => setCurrentPage('Navigate')}>
           <Image source={require('./photo/back.png')} style={{}} />
         </TouchableOpacity>
       </View>
+      <View style={styles.pickerContainer}>
       <Picker
         style={{ borderWidth: 1, borderRadius: 20, marginBottom: 10 }}
         selectedValue={selectedPage}
         onValueChange={(itemValue) => setSelectedPage(itemValue)}
       >
         <Picker.Item label="Select page" value="" />
-        <Picker.Item label="PartCreate" value="PartCreate" />
-        <Picker.Item label="UserPage" value="UserPage" />
-        <Picker.Item label="InputHandler" value="InputHandler" />
+        <Picker.Item label="Part" value="PartCreate" />
+        <Picker.Item label="User" value="UserPage" />
+        <Picker.Item label="Scanning" value="InputHandler" />
       </Picker>
-
+      </View>
       {selectedPage === 'InputHandler' && (
         <>
           <TextInput
@@ -80,11 +99,13 @@ function DataDelete({ setCurrentPage, onLogout }) {
             placeholder="Enter end date (YYYY-MM-DD)"
           />
 
-          <Button title="Delete Data" onPress={handleDelete} />
+          <Button title="Delete Data" onPress={handleDelete} color="red"/>
         </>
       )}
 
-      {selectedPage === 'PartCreate' && (
+{selectedPage === 'PartCreate' && (
+      <>
+        <Text style={styles.listHeader}>Part</Text>
         <FlatList
           data={data}
           keyExtractor={(item) => item.id.toString()}
@@ -97,9 +118,11 @@ function DataDelete({ setCurrentPage, onLogout }) {
             </TouchableOpacity>
           )}
         />
-      )}
-
-      {selectedPage === 'UserPage' && (
+      </>
+    )}
+   {selectedPage === 'UserPage' && (
+      <>
+        <Text style={styles.listHeader}>User</Text>
         <FlatList
           data={data}
           keyExtractor={(item) => item.id.toString()}
@@ -114,9 +137,12 @@ function DataDelete({ setCurrentPage, onLogout }) {
             </TouchableOpacity>
           )}
         />
-      )}
+      </>
+    )}
 
-      {selectedPage === 'InputHandler' && (
+ {selectedPage === 'InputHandler' && (
+      <>
+        <Text style={styles.listHeader}>Scanning</Text>
         <FlatList
           data={data}
           keyExtractor={(item) => item.id.toString()}
@@ -132,32 +158,19 @@ function DataDelete({ setCurrentPage, onLogout }) {
             </TouchableOpacity>
           )}
         />
-      )}
-
-
-<TouchableOpacity style={{ width: 120,// Width
-    height: 40, // Height
-    borderRadius: 20, // Border radius
-    backgroundColor: '#2196F3', // Button background color
- left:110,bottom:35}} onPress={onLogout}>
-
-
-      <Image source = {require('./photo/power-off.png') }  style={{left:79,top:5 ,borderRadius:50,position:'absolute'}} />
-      
-      
-      
-        <Text style={{  color: 'white', // Text color
-    fontSize: 19,bottom:8,right:45,position:'absolute'}}>Log out</Text>
-      </TouchableOpacity>
-    </View>
+      </>
+    )}
+  </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     padding: 16,
+    position:"relative"
   },
   listHeader: {
     flexDirection: 'row',
@@ -173,6 +186,14 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+    width: '100%',
+
+
   },
 });
 

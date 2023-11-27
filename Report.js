@@ -1,20 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, FlatList, StyleSheet,Image,TouchableOpacity } from 'react-native';
-import { getAllScanDetails } from './databaseHandler';
+import { View, Text, Button, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import { getAllScanDetails, getAllDuplicateScanDetails } from './databaseHandler';
 import * as XLSX from 'xlsx';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 
-function Report({ setCurrentPage,onLogout }) {
+
+
+function Report({ setCurrentPage, onLogout, }) {
   const [data, setData] = useState([]);
+  const [selectedDataSource, setSelectedDataSource] = useState('scanDetail');
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [selectedDataSource]);
 
   const fetchData = async () => {
-    const scanDetails = await getAllScanDetails();
-    setData(scanDetails);
+    let fetchedData;
+    if (selectedDataSource === 'scanDetail') {
+      fetchedData = await getAllScanDetails();
+    } else if (selectedDataSource === 'duplicateScan') {
+      fetchedData = await getAllDuplicateScanDetails();
+    }
+    setData(fetchedData);
+    console.log(data)
   };
 
   const exportReport = async () => {
@@ -26,25 +36,28 @@ function Report({ setCurrentPage,onLogout }) {
     await RNFS.writeFile(path, wbout, 'ascii');
     Share.open({ url: 'file://' + path });
   };
+ 
 
   return (
     <View style={styles.container}>
-        <View style={{  position: 'absolute',
-    top: -60,
-   
-    right: 290,
-   }}>
-    
-    
-
-
-<TouchableOpacity  onPress={() => setCurrentPage('Navigate')}>
-        <Image source = {require('./photo/back.png') }   
-     style={{   }}
-     />
-      </TouchableOpacity> 
-
+      <View style={{ position: 'absolute', top: -60, right: 290 }}>
+        <TouchableOpacity onPress={() => setCurrentPage('Navigate')}>
+          <Image source={require('./photo/back.png')} />
+        </TouchableOpacity>
       </View>
+      <View style={styles.pickerContainer}>
+  <Picker
+    selectedValue={selectedDataSource}
+    onValueChange={(itemValue) => setSelectedDataSource(itemValue)}
+    style={styles.picker}
+  >
+    <Picker.Item label="Scan Detail" value="scanDetail" />
+    <Picker.Item label="Duplicate Scan" value="duplicateScan" />
+  </Picker>
+</View>
+
+
+
       <View style={{width:130 ,left:200}}>
 
       <Button title="Export Report" 
@@ -57,35 +70,47 @@ function Report({ setCurrentPage,onLogout }) {
   keyExtractor={(item, index) => index.toString()}
   renderItem={({ item , index}) => (
     <View style={styles.row}>
-      {/* <Text style={styles.cell}>{item.scan_detail}</Text> */}
       <Text style={styles.cell}>{index + 1}</Text>
-      <Text style={styles.cell}>{item.vendor}</Text>
-      <Text style={styles.cell}>{item.part}</Text>
-      <Text style={styles.cell}>{item.serial_no}</Text>
-      <Text style={styles.cell}>{item.created_on}</Text>
+      {selectedDataSource === 'duplicateScan' ? (
+        <>
+          <Text style={styles.cell}>{item.part}</Text>
+          <Text style={styles.cell}>{item.username}</Text>
+          <Text style={styles.cell}>{item.created_on}</Text>
+        </>
+      ) : (
+        <>
+          <Text style={styles.cell}>{item.vendor}</Text>
+          <Text style={styles.cell}>{item.part}</Text>
+          <Text style={styles.cell}>{item.serial_no}</Text>
+          <Text style={styles.cell}>{item.created_on}</Text>
+        </>
+      )}
     </View>
   )}
   ListHeaderComponent={() => (
     <View style={styles.row}>
       <Text style={styles.listHeaderText}>SL No</Text>
-      <Text style={styles.listHeaderText}>Vendor</Text>
-      <Text style={styles.listHeaderText}>Part</Text>
-
-      <Text style={styles.listHeaderText}>Serial No</Text>
-      <Text style={styles.listHeaderText}>Date</Text>
+      {selectedDataSource === 'duplicateScan' ? (
+        <>
+          <Text style={styles.listHeaderText}>Part</Text>
+          <Text style={styles.listHeaderText}>Username</Text>
+          <Text style={styles.listHeaderText}>Date</Text>
+        </>
+      ) : (
+        <>
+          <Text style={styles.listHeaderText}>Vendor</Text>
+          <Text style={styles.listHeaderText}>Part</Text>
+          <Text style={styles.listHeaderText}>Serial No</Text>
+          <Text style={styles.listHeaderText}>Date</Text>
+        </>
+      )}
     </View>
   )}
-/>
-      
-      <TouchableOpacity style={{ width: 120, // Width
-    height: 40, // Height
-    borderRadius: 20, // Border radius
-    backgroundColor: '#2196F3', // Button background color
- left:200,top:10}} onPress={onLogout}>
-      <Image source = {require('./photo/power-off.png') }  style={{left:79,top:5 ,borderRadius:50,position:'absolute'}} />
-        <Text style={{  color: 'white', // Text color
-    fontSize: 19,bottom:8,right:45,position:'absolute'}}>Log out</Text>
-      </TouchableOpacity>
+/>  
+   
+      <View style={{width:76 ,left:260, bottom:585}}>     
+<Button title="log out" color="red"  onPress={onLogout} />
+</View>
     </View>
   );
 }
@@ -104,6 +129,15 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 1,
     borderColor: '#ddd',
+    padding: 10,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: 'black',
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  picker: {
     padding: 10,
   },
 });

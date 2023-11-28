@@ -104,7 +104,7 @@ function InputHandler(props,username) {
     } catch (error) {
       console.error(error);
       if (error.message === 'Duplicate serial number') {
-        await saveDuplicateScan(inputData , user);
+        await saveDuplicateScan(serialNo , user);
         
         console.log("THis is user name " ,user);// Save duplicate scan detail
         setModalMessage('Duplicate serial number');

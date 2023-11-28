@@ -73,7 +73,7 @@ function Report({ setCurrentPage, onLogout, }) {
       <Text style={styles.cell}>{index + 1}</Text>
       {selectedDataSource === 'duplicateScan' ? (
         <>
-          <Text style={styles.cell}>{item.part}</Text>
+          <Text style={styles.cell}>{item.duplicate_scan}</Text>
           <Text style={styles.cell}>{item.username}</Text>
           <Text style={styles.cell}>{item.created_on}</Text>
         </>
@@ -92,7 +92,7 @@ function Report({ setCurrentPage, onLogout, }) {
       <Text style={styles.listHeaderText}>SL No</Text>
       {selectedDataSource === 'duplicateScan' ? (
         <>
-          <Text style={styles.listHeaderText}>Part</Text>
+          <Text style={styles.listHeaderText}>Serial no</Text>
           <Text style={styles.listHeaderText}>Username</Text>
           <Text style={styles.listHeaderText}>Date</Text>
         </>

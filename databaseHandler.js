@@ -74,12 +74,13 @@ export async function createDuplicateScanTable() {
     });
   });
 }
-export async function saveDuplicateScan(scanDetail , username) {
+export async function saveDuplicateScan(serialNo ,username ) {
+  const serial = serialNo.slice(-5);
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
         'INSERT INTO tbl_duplicate_scan (duplicate_scan, username, created_on) VALUES (?, ?, ?)',
-        [scanDetail, username, new Date().toISOString()],
+        [serial, username, new Date().toISOString()],
         (tx, results) => {
           resolve(results);
         },

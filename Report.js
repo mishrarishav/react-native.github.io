@@ -92,7 +92,7 @@ function Report({ setCurrentPage, onLogout, }) {
       <Text style={styles.listHeaderText}>SL No</Text>
       {selectedDataSource === 'duplicateScan' ? (
         <>
-          <Text style={styles.listHeaderText}>Serial no</Text>
+          <Text style={styles.listHeaderText}>Serial</Text>
           <Text style={styles.listHeaderText}>Username</Text>
           <Text style={styles.listHeaderText}>Date</Text>
         </>

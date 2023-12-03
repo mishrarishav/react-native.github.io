@@ -12,7 +12,7 @@ function LoginPage({ onLogin }) {
     const isAuthenticated = await authenticateUser(username, password);
     console.log(`Is authenticated: ${isAuthenticated}`);
 
-    if (isAuthenticated || username ==='admin'  ) {    
+    if (isAuthenticated || username ==='admin' && password ==="rsbadmin123" ) {    
       onLogin(username === 'admin', username);
     } else {
       Alert.alert('Authentication failed', 'Invalid username or password');

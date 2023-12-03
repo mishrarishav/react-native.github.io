@@ -62,20 +62,24 @@ function InputHandler(props,username) {
     setScanDetails(scanDetailsFromDb);
    };
 
-
-  const handleInputChange = (value) =>
-   {
+   const handleInputChange = (value) => {
     setInputData(value);
     const parts = value.split('$');
-    setInputVendor(parts[0]);
-    setInputPart(parts[1]);
-    setSerialNo(parts[2]);
-   };
+    const inputVendor = parts[0];
+    const inputPart = parts[1];
+    const serialNo = parts[2];
+  
+    setInputVendor(inputVendor);
+    setInputPart(inputPart);
+    setSerialNo(serialNo);
+  
+    handleSave(value, inputVendor, inputPart, serialNo);
+  };
 
 
 
 
-   const handleSave = async () => {
+  const handleSave = async (inputData, inputVendor, inputPart, serialNo) => {
     if (!inputData) {
       alert('Please enter scan detail before saving');
       return;
@@ -84,12 +88,14 @@ function InputHandler(props,username) {
     if (inputVendor !== vendor) {
       setModalMessage('Wrong Vendor');
       setShowModal(true);
+      setInputData('');
       return;
     }
   
     if (inputPart !== part || !parts.includes(inputPart)) {
       setModalMessage('Wrong Part');
       setShowModal(true);
+      setInputData('');
       return;
     }
   
@@ -108,6 +114,7 @@ function InputHandler(props,username) {
         
         console.log("THis is user name " ,user);// Save duplicate scan detail
         setModalMessage('Duplicate serial number');
+        setInputData('');
         setShowModal(true);
       } else {
         setSaveMessage('Failed to save scan detail');
@@ -194,9 +201,7 @@ function InputHandler(props,username) {
           onChangeText={handleInputChange}
         />
       </View>
-      <Text style={styles.saveMessage}>{saveMessage}</Text>
-
-      <TouchableOpacity style={{
+      {/* <TouchableOpacity style={{
         width: 200,
         height: 50,
         borderRadius: 50,
@@ -208,7 +213,10 @@ function InputHandler(props,username) {
           color: 'white',
           fontSize: 14,
         }}>Save</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <Text style={styles.saveMessage}>{saveMessage}</Text>
+
+      
 
 
 
